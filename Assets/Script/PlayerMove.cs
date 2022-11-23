@@ -36,12 +36,13 @@ public class PlayerMove : MonoBehaviour
         }
 
         // Direction Sprite
-        if(Input.GetButtonDown("Horizontal"))
+        float h = Input.GetAxisRaw("Horizontal");
+        if (h != 0)
         {
-            spriteRenderer.flipX = Input.GetAxisRaw("Horizontal") == -1;
+            spriteRenderer.flipX = h == -1;
         }
 
-        if(Mathf.Abs(playerRigidbody.velocity.x) < 0.3)
+        if (Mathf.Abs(playerRigidbody.velocity.x) < 0.3)
         {
             anim.SetBool("isWalking", false);
         }
