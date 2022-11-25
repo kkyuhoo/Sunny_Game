@@ -7,7 +7,8 @@ public class EnemyMove : MonoBehaviour
     private Rigidbody2D enemyRigidbody;
     Animator anim;
     SpriteRenderer spriteRenderer;
-    public int nextMove;
+    CapsuleCollider2D enemyCollider;
+
 
 
     // Start is called before the first frame update
@@ -16,52 +17,38 @@ public class EnemyMove : MonoBehaviour
         enemyRigidbody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        Invoke("Think", 5);
+        enemyCollider = GetComponent<CapsuleCollider2D>();
+
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    public virtual void OnDamaged()
     {
-        // Move
-        enemyRigidbody.velocity = new Vector2(nextMove, enemyRigidbody.velocity.y);
+        // Sprite Death Anim
+        anim.SetBool("isDestroy", true);
 
-        // Platform Check
-        Vector2 frontVec = new Vector2(enemyRigidbody.position.x + nextMove * 0.2f, enemyRigidbody.position.y);
+        //// Collider Disable
+        enemyCollider.enabled = false;
 
-        Debug.DrawRay(frontVec, Vector3.down, new Color(0, 1, 0));
-        RaycastHit2D rayHit = Physics2D.Raycast(frontVec, Vector3.down, 1, LayerMask.GetMask("Platform"));
-        if (rayHit.collider == null)
-        {
-            Turn();
-        }
+        // Sprite Alpha
+        //spriteRenderer.color = new Color(1, 1, 1, 0.4f);
+
+        //// Sprite Flip Y
+        //spriteRenderer.flipY = true;
+
+        //// Collider Disable
+        //enemyCollider.enabled = false;
+
+        //// Die Effect Jump
+        enemyRigidbody.AddForce(Vector2.up * 5, ForceMode2D.Impulse);
+
+        //// Destroy
+        Invoke("DeActive", 5);
+    }
+    void DeActive()
+    {
+        gameObject.SetActive(false);
     }
 
-    void Think()
-    {
-        // Set Next Active
-        nextMove = Random.Range(-1, 2);
 
-        // Sprite Animation
-        anim.SetInteger("walkSpeed", nextMove);
-
-        // Flip Sprite
-        if (nextMove != 0)
-        {
-            spriteRenderer.flipX = nextMove == 1;
-        }
-
-        // Recursive
-        float nextThinkTime = Random.Range(2f, 5f);
-        Invoke("Think", nextThinkTime);
-
-    }
-
-    void Turn()
-    {
-        nextMove = nextMove * (-1);
-        spriteRenderer.flipX = nextMove == 1;
-
-        CancelInvoke();
-        Invoke("Think", 5);
-    }
 }

@@ -7,10 +7,9 @@ public class opossumMove : MonoBehaviour
     private Rigidbody2D enemyRigidbody;
     Animator anim;
     SpriteRenderer spriteRenderer;
+
     private int nextMove = 1;
     private float maxSpeed = 5f;
-
-
 
     // Start is called before the first frame update
     void Awake()
@@ -38,7 +37,6 @@ public class opossumMove : MonoBehaviour
             Turn();
         }
     }
-
     void Think()
     {
         // Set Next Active
@@ -55,7 +53,6 @@ public class opossumMove : MonoBehaviour
         Invoke("Think", nextThinkTime);
 
     }
-
     void Turn()
     {
         nextMove = nextMove * (-1);
@@ -64,4 +61,6 @@ public class opossumMove : MonoBehaviour
         CancelInvoke();
         Invoke("Think", 5);
     }
+
+
 }

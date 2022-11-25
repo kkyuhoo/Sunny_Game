@@ -13,7 +13,6 @@ public class frogMove : MonoBehaviour
     public float jumpForce;
 
 
-
     // Start is called before the first frame update
     void Awake()
     {
@@ -22,8 +21,6 @@ public class frogMove : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         Invoke("Think", 2);
-
-
     }
 
     // Update is called once per frame

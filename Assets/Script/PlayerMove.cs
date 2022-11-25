@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
 {
+    public GameManager gameManager;
+    public AudioClip audioJump;
 
     private Rigidbody2D playerRigidbody;
     SpriteRenderer spriteRenderer;
     Animator anim;
+    AudioSource audioSource;
+    CapsuleCollider2D playerCollider;
+
     public float maxSpeed;
     public float JumpPower;
 
@@ -17,7 +22,8 @@ public class PlayerMove : MonoBehaviour
         playerRigidbody = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
-
+        playerCollider = GetComponent<CapsuleCollider2D>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -27,6 +33,8 @@ public class PlayerMove : MonoBehaviour
         {
             playerRigidbody.AddForce(Vector2.up * JumpPower, ForceMode2D.Impulse);
             anim.SetBool("isJumping", true);
+            //PlaySound("JUMP");
+
         }
 
         // Stop Speed
@@ -88,5 +96,139 @@ public class PlayerMove : MonoBehaviour
             }
         }
 
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.tag == "Enemy")
+        {
+            // Attack
+            if(playerRigidbody.velocity.y < 0 && transform.position.y > collision.transform.position.y)
+            {
+                OnAttack(collision.transform);
+            }
+            // Damaged
+            else
+            {
+                OnDamaged(collision.transform.position);
+            }
+        }
+        else if(collision.gameObject.tag == "Eagle")
+        {
+            if (playerRigidbody.velocity.y < 0 && transform.position.y > collision.transform.position.y)
+            {
+                OnAttack2(collision.transform);
+            }
+            // Damaged
+            else
+            {
+                OnDamaged(collision.transform.position);
+            }
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Item")
+        {
+            // Point
+            // Contains(비교문) : 대상 문자열에 비교문이 있으면 true
+            bool ischerry = collision.gameObject.name.Contains("cherry");
+            bool isgem = collision.gameObject.name.Contains("gem");
+
+            if (ischerry)
+            {
+                //gameManager.stagePoint += 50;
+                Animator animCherry = collision.GetComponent<Animator>();
+                animCherry.SetBool("ItemFeedback", true);
+            }
+            else if (isgem)
+            {
+                //gameManager.stagePoint += 100;
+                Animator animGem = collision.GetComponent<Animator>();
+                animGem.SetBool("ItemFeedback", true);
+            }
+
+        }
+        else if (collision.gameObject.tag == "Finish")
+        {
+            // Next Stage
+            //gameManager.NextStage();
+
+        }
+
+    }
+    void OnAttack(Transform enemy)
+    {
+        // Point
+        //gameManager.stagePoint += 100;
+
+        // Reaction Force
+        playerRigidbody.AddForce(Vector2.up * 5, ForceMode2D.Impulse);
+
+        // Enemy Die
+        EnemyMove enemyMove = enemy.GetComponent<EnemyMove>();
+        enemyMove.OnDamaged();
+    }
+
+    void OnAttack2(Transform enemy)
+    {
+        // Point
+        //gameManager.stagePoint += 100;
+
+        // Reaction Force
+        playerRigidbody.AddForce(Vector2.up * 5, ForceMode2D.Impulse);
+
+        // Enemy Die
+        eagleMove eagleMove = enemy.GetComponent<eagleMove>();
+        eagleMove.OnDamaged();
+    }
+
+    void OnDamaged(Vector2 targetPos)
+    {
+        // Health Down
+        //gameManager.HealthDown();
+
+        // Change Layer (Immortal Active)
+        gameObject.layer = 11;
+
+        // View Alpha
+        spriteRenderer.color = new Color(1, 1, 1, 0.4f);
+
+        // Reaction Force
+        int dirc = transform.position.x - targetPos.x > 0 ? 1 : -1;
+        playerRigidbody.AddForce(new Vector2(dirc, 1) * 5, ForceMode2D.Impulse);
+
+        // Animation
+        anim.SetTrigger("doDamaged");
+
+        Invoke("OffDamaged", 3);
+
+    }
+
+    void OffDamaged()
+    {
+        gameObject.layer = 10;
+        spriteRenderer.color = new Color(1, 1, 1, 1);
+    }
+
+    public void OnDie()
+    {
+        // Sprite Alpha
+        spriteRenderer.color = new Color(1, 1, 1, 0.4f);
+
+        // Sprite Flip Y
+        spriteRenderer.flipY = true;
+
+        // Collider Disable
+        playerCollider.enabled = false;
+
+        // Die Effect Jump
+        playerRigidbody.AddForce(Vector2.up * 2, ForceMode2D.Impulse);
+    }
+
+    public void VelocityZero()
+    {
+        playerRigidbody.velocity = Vector2.zero;
     }
 }
