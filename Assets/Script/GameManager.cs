@@ -30,6 +30,36 @@ public class GameManager : MonoBehaviour
         
     }
 
+    public void NextStage()
+    {
+        // Chage Stage
+        if(stageIndex < Stages.Length - 1)
+        {
+            Stages[stageIndex].SetActive(false);
+
+            stageIndex++;
+
+            Stages[stageIndex].SetActive(true);
+
+            PlayerReposition();
+        }
+        else
+        {
+            // Game Clear
+            // Player Controll Lock
+            Time.timeScale = 0;
+
+            // Resuit UI
+            Debug.Log("게임 클리어!");
+            // ReStart Button UI
+
+        }
+
+        // calculate Point
+        totalPoint += stagePoint;
+        stagePoint = 0;
+    }
+
     public void HealthDown()
     {
         if(health > 1)
@@ -43,13 +73,13 @@ public class GameManager : MonoBehaviour
             UIhealth[0].color = new Color(1, 0, 0, 0.4f);
 
             // Player Die Effect
-            //player.OnDie();
+            player.OnDie();
 
             // Result UI
             Debug.Log("죽었습니다");
 
             // Retry Button UI
-            //UIRestartBtn.SetActive(true);
+            UIRestartBtn.SetActive(true);
         }
     }
 
@@ -58,26 +88,26 @@ public class GameManager : MonoBehaviour
         if(collision.gameObject.tag == "Player")
         {
             // Player Reposition
-            //if (health > 1)
-            //{
-            //    PlayerReposition();
-            //}
+            if (health > 1)
+            {
+                PlayerReposition();
+            }
 
             // Health Down
-            HealthDown();
+            //HealthDown();
         }
     }
 
     void PlayerReposition()
     {
         player.transform.position = new Vector3(0, 0, -1);
-        //player.VelocityZero();
+        player.VelocityZero();
 
     }
 
     public void Restart()
     {
-        Time.timeScale = 1;
+        //Time.timeScale = 0;
         //SceneManager.LoadScene(0);
     }
 

@@ -11,7 +11,7 @@ public class PlayerMove : MonoBehaviour
     SpriteRenderer spriteRenderer;
     Animator anim;
     AudioSource audioSource;
-    CapsuleCollider2D playerCollider;
+    CircleCollider2D playerCollider;
 
     public float maxSpeed;
     public float JumpPower;
@@ -22,7 +22,7 @@ public class PlayerMove : MonoBehaviour
         playerRigidbody = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
-        playerCollider = GetComponent<CapsuleCollider2D>();
+        playerCollider = GetComponent<CircleCollider2D>();
         audioSource = GetComponent<AudioSource>();
     }
 
@@ -129,6 +129,12 @@ public class PlayerMove : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        if(collision.gameObject.tag == "Log")
+        {
+            GetComponent<CircleCollider2D>().isTrigger = true;
+        }
+
+
         if (collision.gameObject.tag == "Item")
         {
             // Point
@@ -153,10 +159,15 @@ public class PlayerMove : MonoBehaviour
         else if (collision.gameObject.tag == "Finish")
         {
             // Next Stage
-            //gameManager.NextStage();
+            Debug.Log("Ãæµ¹");
+            gameManager.NextStage();
 
         }
 
+    }
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        GetComponent<CircleCollider2D>().isTrigger = false;
     }
     void OnAttack(Transform enemy)
     {
